@@ -121,6 +121,48 @@ int Bernoulli::quantile(double p) {
 	return -1;
 }
 
+//Poisson
+class Poisson: public Discrete {
+	public:
+		double pmf(int);
+		double cdf(int);
+		virtual int quantile(double);
+		int random(){
+			return Discrete::random();
+		};
+		std::vector<int> random(int length) {
+			return Discrete::random(length);
+		};
+		Poisson(double m)
+			: m_m(m)
+		{}
+		double m_m;
+};
+
+double Poisson::pmf(int k) {
+	return pow(m_m, k)*exp(-m_m)/tgamma(k+1);
+}	
+
+double Poisson::cdf(int k) {
+	double total = 0;
+	for (int i=0; i <= k; i++) {
+		total += pmf(i);
+	}
+	return total;
+}
+
+int Poisson::quantile(double p) {
+	double total = 0;
+	int j = 0;
+	total += pmf(j);
+	while (total < p) {
+	       j += 1;
+	       total += pmf(j);
+	}
+	return j;
+}
+
+
 // Laplace
 class Laplace: public Continuous {
 	public:
@@ -174,6 +216,7 @@ void dump(std::vector<int> data) {
 }
 int main() {
 	// Examples
+	/*
 	Bernoulli b = Bernoulli(0.5);
 	printf("b is %f \n", b.m_p); //0.5
 	printf("b's pmf of 1 is %f \n", b.pmf(1)); //0.5
@@ -188,4 +231,9 @@ int main() {
 	Laplace l = Laplace(0.0, 1.0);
 	printf("l's pdf of 1 is %f \n", l.pdf(1)); //0.183940
 	printf("l's cdf of 1 is %f \n", l.cdf(1)); //0.816060
+	*/
+	Poisson p = Poisson(1.5);
+	printf("p's pdf of 1 is %f \n", p.pmf(3)); //0.125511
+	printf("p's cdf of 1 is %f \n", p.cdf(1)); //0.557825
+	printf("p's cdf of 1 is %d \n", p.quantile(0.5)); //1
 }
