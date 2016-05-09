@@ -162,6 +162,7 @@ int Poisson::quantile(double p) {
 	return j;
 }
 
+// Geometric
 class Geometric: public Discrete {
 	public:
 		double pmf(int);
@@ -190,7 +191,35 @@ double Geometric::cdf(int k) {
 int Geometric::quantile(double p) {
 	return ceil(log(1 - p)/log(1 - m_p));
 }
+// Exponential
+class Exponential: public Continuous {
+	public:
+		double pdf(double);
+		double cdf(double);
+		virtual double quantile(double);
+		int random(){
+			return Continuous::random();
+		};
+		std::vector<double> random(int length) {
+			return Continuous::random(length);
+		};
+		Exponential(double l)
+			: m_l(l)
+		{}
+		double m_l;
+};
 
+double Exponential::pdf(double x) {
+	return m_l*exp(-m_l*x);
+}
+
+double Exponential::cdf(double x) {
+	return 1 - exp(-m_l*x);
+}
+
+double Exponential::quantile(double p) {
+	return -log(1 - p)/m_l;
+}
 
 // Laplace
 class Laplace: public Continuous {
@@ -267,10 +296,13 @@ int main() {
 	printf("p's cdf of 1 is %f \n", p.cdf(1)); //0.557825
 	printf("p's cdf of 1 is %d \n", p.quantile(0.5)); //1
 	Geometric g = Geometric(0.5);
-	printf("p's pdf of 1 is %f \n", g.pmf(3)); //0.125511
-	printf("p's cdf of 1 is %f \n", g.cdf(3)); //0.557825
-	printf("p's cdf of 1 is %d \n", g.quantile(0.9999)); //1
+	printf("p's pdf of 1 is %f \n", g.pmf(3)); // .125
+	printf("p's cdf of 1 is %f \n", g.cdf(3)); // .875
+	printf("p's cdf of 1 is %d \n", g.quantile(0.9999)); //14
+	Exponential e = Exponential(0.5);
+	printf("p's pdf of 1 is %f \n", e.pdf(3)); //0.125511
+	printf("p's cdf of 1 is %f \n", e.cdf(3)); //0.557825
+	printf("p's cdf of 1 is %f \n", e.quantile(0.864664716763387)); //4
 	*/
-
 }
 
