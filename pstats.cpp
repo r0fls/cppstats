@@ -162,6 +162,35 @@ int Poisson::quantile(double p) {
 	return j;
 }
 
+class Geometric: public Discrete {
+	public:
+		double pmf(int);
+		double cdf(int);
+		virtual int quantile(double);
+		int random(){
+			return Discrete::random();
+		};
+		std::vector<int> random(int length) {
+			return Discrete::random(length);
+		};
+		Geometric(double p)
+			: m_p(p)
+		{}
+		double m_p;
+};
+
+double Geometric::pmf(int k) {
+	return pow(1 - m_p, k - 1)*m_p;
+}
+
+double Geometric::cdf(int k) {
+	return 1 - pow(1 - m_p, k);
+}
+
+int Geometric::quantile(double p) {
+	return ceil(log(1 - p)/log(1 - m_p));
+}
+
 
 // Laplace
 class Laplace: public Continuous {
@@ -186,6 +215,7 @@ class Laplace: public Continuous {
 double Laplace::pdf(double x) {
 	return exp(-fabs(double(x - m_m))/m_b)/2;
 }
+
 double Laplace::cdf(double x) {
 	if (x < m_m) {
 		return exp(double(x - m_m)/m_b)/2;
@@ -214,6 +244,7 @@ void dump(std::vector<int> data) {
 	for (std::vector<int>::const_iterator i = data.begin(); i != data.end(); ++i)
 		std::cout << *i << '\n';
 }
+
 int main() {
 	// Examples
 	/*
@@ -231,9 +262,15 @@ int main() {
 	Laplace l = Laplace(0.0, 1.0);
 	printf("l's pdf of 1 is %f \n", l.pdf(1)); //0.183940
 	printf("l's cdf of 1 is %f \n", l.cdf(1)); //0.816060
-	*/
 	Poisson p = Poisson(1.5);
 	printf("p's pdf of 1 is %f \n", p.pmf(3)); //0.125511
 	printf("p's cdf of 1 is %f \n", p.cdf(1)); //0.557825
 	printf("p's cdf of 1 is %d \n", p.quantile(0.5)); //1
+	Geometric g = Geometric(0.5);
+	printf("p's pdf of 1 is %f \n", g.pmf(3)); //0.125511
+	printf("p's cdf of 1 is %f \n", g.cdf(3)); //0.557825
+	printf("p's cdf of 1 is %d \n", g.quantile(0.9999)); //1
+	*/
+
 }
+
